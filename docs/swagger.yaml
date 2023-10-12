@@ -1,0 +1,422 @@
+basePath: /
+definitions:
+  authentication.LoginResponseDto:
+    properties:
+      response:
+        example: User is logged in successfully
+        type: string
+      token:
+        example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiZ3Vlc3RAZ2FtaWwuY29tIiwidXNlcl9pZCI6ImJjMjg2OTIzLTdjMGItNDkxOS1hOWZjLTIyMTdmNTdiMTFlNSIsImV4cCI6MTY5NTY1Nzg0OH0.gKKjicgu53ja0dNntSxlsAVsRN9zWvd98YjkMKYhIe7OyIA6MXfZipBNzxcNuHVcdrWvgw4VPNdYXsI3Aa37Mw
+        type: string
+    type: object
+  authentication.RegisterDto:
+    properties:
+      email:
+        example: johndoe@gmail.com
+        type: string
+      password:
+        example: JohnD0@2123
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  entity.GetListDto:
+    properties:
+      limit:
+        example: 5
+        type: integer
+    required:
+    - limit
+    type: object
+  entity.TodoItem:
+    properties:
+      created_at:
+        type: string
+      id:
+        example: 3604fa26-5ee8-428f-a6dd-c742455e8148
+        type: string
+      is_completed:
+        type: boolean
+      is_deleted:
+        type: boolean
+      item:
+        $ref: '#/definitions/entity.TodoItemDto'
+      updated_at:
+        type: string
+    required:
+    - created_at
+    - id
+    - is_completed
+    - is_deleted
+    - item
+    type: object
+  entity.TodoItemDetailsDto:
+    properties:
+      description:
+        example: This is description for the todo list item.
+        type: string
+      due_date:
+        example: "2023-05-22T09:38:24.405027Z"
+        type: string
+      priority:
+        enum:
+        - HIGH
+        - LOW
+        - MEDIUM
+        example: HIGH
+        type: string
+    required:
+    - description
+    - due_date
+    - priority
+    type: object
+  entity.TodoItemDto:
+    properties:
+      details:
+        $ref: '#/definitions/entity.TodoItemDetailsDto'
+      name:
+        example: Todo list 1
+        minLength: 3
+        type: string
+    required:
+    - details
+    - name
+    type: object
+host: localhost:5000
+info:
+  contact: {}
+  title: Todo API
+  version: "1.0"
+paths:
+  /item/{id}:
+    get:
+      parameters:
+      - description: Bearer
+        in: header
+        name: Authorization
+        type: string
+      - description: item Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TodoItem'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: finds a todo item by id
+      tags:
+      - Item
+  /item/complete/{id}:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer
+        in: header
+        name: Authorization
+        type: string
+      - description: item Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TodoItem'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: sets the item status to complete by id
+      tags:
+      - Item
+  /item/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer
+        in: header
+        name: Authorization
+        type: string
+      - description: Item details
+        in: body
+        name: dto
+        required: true
+        schema:
+          $ref: '#/definitions/entity.TodoItemDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.TodoItem'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: creates a new todo item
+      tags:
+      - Item
+  /item/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer
+        in: header
+        name: Authorization
+        type: string
+      - description: item Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: deletes a todo item by id
+      tags:
+      - Item
+  /item/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer
+        in: header
+        name: Authorization
+        type: string
+      - description: Item List Criteria
+        in: body
+        name: dto
+        required: true
+        schema:
+          $ref: '#/definitions/entity.GetListDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.TodoItem'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: find all todo items by user_id
+      tags:
+      - Item
+  /item/update/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer
+        in: header
+        name: Authorization
+        type: string
+      - description: item Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Item update criteria
+        in: body
+        name: dto
+        required: true
+        schema:
+          $ref: '#/definitions/entity.TodoItemDetailsDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TodoItem'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: updates a todo item by id
+      tags:
+      - Item
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Email and Password
+        in: body
+        name: dto
+        required: true
+        schema:
+          $ref: '#/definitions/authentication.RegisterDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/authentication.LoginResponseDto'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Verifies the user and password
+      tags:
+      - Authentication
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user
+      parameters:
+      - description: Email and Password
+        in: body
+        name: dto
+        required: true
+        schema:
+          $ref: '#/definitions/authentication.RegisterDto'
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Register a new user
+      tags:
+      - Authentication
+schemes:
+- http
+- https
+swagger: "2.0"
